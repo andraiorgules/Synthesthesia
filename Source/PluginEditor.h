@@ -32,6 +32,7 @@ private:
     OscComponent osc;
     ADSRComponent adsr;
     FilterComponent filter;
+    ADSRComponent modAdsr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesthesiaAudioProcessorEditor)
 };

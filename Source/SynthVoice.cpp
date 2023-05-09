@@ -45,6 +45,7 @@ void SynthVoice::pitchWheelMoved (int newPitchWheelValue)
 
 void SynthVoice::prepareToPlay (double sampleRate, int samplesPerBlock, int outputChannels)
 {
+    reset();
     
     juce::dsp::ProcessSpec spec;
     spec.maximumBlockSize = samplesPerBlock;
@@ -55,8 +56,8 @@ void SynthVoice::prepareToPlay (double sampleRate, int samplesPerBlock, int outp
     adsr.setSampleRate (sampleRate);
     filter.prepareToPlay(sampleRate, samplesPerBlock, outputChannels);
     modAdsr.setSampleRate(sampleRate);
-    gain.prepare (spec);
     
+    gain.prepare (spec);
     gain.setGainLinear (0.3f);
     
     isPrepared = true;
@@ -76,7 +77,10 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer< float > &outputBuffer, int 
         return;
     
     synthBuffer.setSize (outputBuffer.getNumChannels(), numSamples, false, false, true);
-    modAdsr.applyEnvelopeToBuffer(synthBuffer, 0, numSamples);
+    
+    modAdsr.applyEnvelopeToBuffer(synthBuffer, 0, /*numSamples*/ synthBuffer.getNumSamples());
+    //modAdsrOutput = modAdsr.getNextSample();
+    
     synthBuffer.clear();
     
     juce::dsp::AudioBlock<float> audioBlock { synthBuffer };
@@ -105,7 +109,12 @@ void SynthVoice::updateModAdsr (const float attack, const float decay, const flo
     modAdsr.updateADSR(attack, decay, sustain, release);
 }
 
-
+void SynthVoice::reset()
+{
+    gain.reset();
+    adsr.reset();
+    modAdsr.reset();
+}
 
 
 
