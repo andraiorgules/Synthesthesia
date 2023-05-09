@@ -16,6 +16,26 @@
       <FILE id="bXyzIm" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
       <FILE id="JyCitS" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
       <FILE id="h4TX9F" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
+      <GROUP id="{7A30B4F7-349D-38DE-0DCC-9993ED43D816}" name="Data">
+        <FILE id="ZIdB8f" name="ADSRData.cpp" compile="1" resource="0" file="Source/Data/ADSRData.cpp"/>
+        <FILE id="DZJXaF" name="ADSRData.h" compile="0" resource="0" file="Source/Data/ADSRData.h"/>
+        <FILE id="EGhpHv" name="FilterData.cpp" compile="1" resource="0" file="Source/Data/FilterData.cpp"/>
+        <FILE id="c89Rrq" name="FilterData.h" compile="0" resource="0" file="Source/Data/FilterData.h"/>
+        <FILE id="ax8YIL" name="OscData.cpp" compile="1" resource="0" file="Source/Data/OscData.cpp"/>
+        <FILE id="frCV6A" name="OscData.h" compile="0" resource="0" file="Source/Data/OscData.h"/>
+      </GROUP>
+      <GROUP id="{2326D99D-266A-FCCF-0353-5B2C81CF61D3}" name="UI">
+        <FILE id="DkhRZJ" name="ADSRComponent.cpp" compile="1" resource="0"
+              file="Source/UI/ADSRComponent.cpp"/>
+        <FILE id="zSIc5j" name="ADSRComponent.h" compile="0" resource="0" file="Source/UI/ADSRComponent.h"/>
+        <FILE id="Xi7sS6" name="FilterComponent.cpp" compile="1" resource="0"
+              file="Source/UI/FilterComponent.cpp"/>
+        <FILE id="xGwa2A" name="FilterComponent.h" compile="0" resource="0"
+              file="Source/UI/FilterComponent.h"/>
+        <FILE id="kbJnVZ" name="OscComponent.cpp" compile="1" resource="0"
+              file="Source/UI/OscComponent.cpp"/>
+        <FILE id="RgUJRc" name="OscComponent.h" compile="0" resource="0" file="Source/UI/OscComponent.h"/>
+      </GROUP>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
