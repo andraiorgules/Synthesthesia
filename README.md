@@ -13,8 +13,11 @@
 ###### [6] [JUCE AudioProcessorValueTreeState Class](https://docs.juce.com/master/classAudioProcessorValueTreeState.html)
 ###### [7] [JUCE Slider Class](https://docs.juce.com/master/classSlider.html)
 ###### [8] [JUCE State Variable Filter](https://docs.juce.com/master/classdsp_1_1StateVariableTPTFilter.html)
-###### [9] [YouTube Let's Build a Synth VST Plug-in with JUCE by TheAudioProgrammer](https://www.youtube.com/playlist?list=PLLgJJsrdwhPwJimt5vtHtNmu63OucmPck)
-###### [10] [Youtube AudioProcessorValueTreeState Class by TheAudioProgrammer](https://www.youtube.com/watch?v=nkQPsYOdIrk)
+###### [9] [YouTube: "Let's Build a Synth VST Plug-in with JUCE" by TheAudioProgrammer](https://www.youtube.com/playlist?list=PLLgJJsrdwhPwJimt5vtHtNmu63OucmPck)
+###### [10] [Youtube: "AudioProcessorValueTreeState Class" by TheAudioProgrammer](https://www.youtube.com/watch?v=nkQPsYOdIrk)
 ###### [11] [JUCE Forum: "macOS: Standalone build works but AU plugin glitches"](https://forum.juce.com/t/macos-standalone-build-works-but-au-plugin-glitches/50158)
+###### [12] [Youtube: 'The Audio Visualiser Component" by TheAudioProgrammer](https://www.youtube.com/watch?v=vWAJo30fizQ))
+###### [13] [Youtube: "Waveform Visualiser and Controls!" by DrBruisin](https://www.youtube.com/watch?v=BN-LWOgBkNw)
+
 
 
