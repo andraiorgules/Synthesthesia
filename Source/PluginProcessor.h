@@ -64,7 +64,29 @@ public:
     
 private:
     juce::Synthesiser synth;
+    
+    //static constexpr auto effectDelaySamples = 192000;
+     //  juce::dsp::DelayLine<float> delay { effectDelaySamples };
+    //   juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> linear { effectDelaySamples };
+     //  juce::dsp::DryWetMixer<float> mixer;
+       
+       //std::array<float, 2> delayValue { {} };
+       //std::array<float, 2> lastDelayOutput;
+      // std::array<LinearSmoothedValue<float>, 2> delayFeedbackVolume;
+       
+      // void parameterChanged (const String& parameterID, float newValue) override;
+    
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();
+    
+    /*
+    juce::AudioBuffer<float> delayBuffer;
+    int writePosition {0};
+    
+    
+    void fillBuffer(juce::AudioBuffer<float>& buffer, int channel);
+    void readFromBuffer(juce::AudioBuffer<float>& buffer, juce::AudioBuffer<float>& delayBuffer, int channel);
+    void updateBufferPositions(juce::AudioBuffer<float>& buffer, juce::AudioBuffer<float>& delayBuffer);
+     */
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesthesiaAudioProcessor)

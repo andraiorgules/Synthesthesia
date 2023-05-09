@@ -31,11 +31,18 @@ SynthesthesiaAudioProcessor::SynthesthesiaAudioProcessor()
 
     waveViewer.setRepaintRate(30);
     waveViewer.setBufferSize(512);
+    
+    //Delay stuff
+   // apvts.addParameterListener ("RATE", this);
+   // apvts.addParameterListener ("FEEDBACK", this);
+    //apvts.addParameterListener ("MIX", this);
 }
 
 SynthesthesiaAudioProcessor::~SynthesthesiaAudioProcessor()
 {
-    
+   // apvts.removeParameterListener ("RATE", this);
+   // apvts.removeParameterListener ("FEEDBACK", this);
+   // apvts.removeParameterListener ("MIX", this);
 }
 
 //==============================================================================
@@ -112,6 +119,29 @@ void SynthesthesiaAudioProcessor::prepareToPlay (double sampleRate, int samplesP
             voice->prepareToPlay (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
         }
     }
+    
+    /*
+    //Circular Buffer
+    auto delayBufferSize = sampleRate * 2.0f;
+    delayBuffer.setSize(getTotalNumOutputChannels(), (int)delayBufferSize);
+    
+    
+    juce::dsp::ProcessSpec spec;
+       spec.maximumBlockSize = samplesPerBlock;
+       spec.sampleRate = sampleRate;
+       spec.numChannels = 2;
+       
+       delay.prepare (spec);
+       linear.prepare (spec);
+       mixer.prepare (spec);
+       
+       for (auto& volume : delayFeedbackVolume)
+           volume.reset (spec.sampleRate, 0.05);
+       
+       linear.reset();
+       std::fill (lastDelayOutput.begin(), lastDelayOutput.end(), 0.0f);
+    */
+    
 }
 
 void SynthesthesiaAudioProcessor::releaseResources()
@@ -176,12 +206,16 @@ void SynthesthesiaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
             auto& modSustain = *apvts.getRawParameterValue ("MODSUSTAIN");
             auto& modRelease = *apvts.getRawParameterValue ("MODRELEASE");
             
+            //Delay
+            //auto& delay = *apvts.getRawParameterValue ("DELAY");
+            
             //Update Parameters
             voice->getOscillator().setWaveType (oscWaveChoice);
             voice->getOscillator().setFmParams(fmDepth, fmFreq);
             voice->updateAdsr(attack.load(), decay.load(), sustain.load(), release.load());
             voice->updateFilter(filterType.load(), cutoff.load(), resonance.load());
             voice->updateModAdsr(modAttack, modDecay, modSustain, modRelease);
+            //voice->updateDelay(delay);
         }
     }
     
@@ -189,9 +223,116 @@ void SynthesthesiaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     buffer.clear();
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     
+    //Drawing Sound waves
     waveViewer.pushBuffer(buffer);
+    
+    /*
+    //Circular Buffer
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        fillBuffer(buffer, channel);
+        readFromBuffer(buffer, delayBuffer, channel);
+        //create feedback loop
+        fillBuffer(buffer, channel);
+    }
+    
+    updateBufferPositions (buffer, delayBuffer);
+    
+    
+    const auto numChannels = jmax (totalNumInputChannels, totalNumOutputChannels);
+
+        auto audioBlock = juce::dsp::AudioBlock<float> (buffer).getSubsetChannelBlock (0, (size_t) numChannels);
+        auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
+        const auto& input = context.getInputBlock();
+        const auto& output = context.getOutputBlock();
+        
+        mixer.pushDrySamples (input);
+        
+        for (size_t channel = 0; channel < numChannels; ++channel)
+        {
+            auto* samplesIn = input.getChannelPointer (channel);
+            auto* samplesOut = output.getChannelPointer (channel);
+            
+            for (size_t sample = 0; sample < input.getNumSamples(); ++sample)
+            {
+                auto input = samplesIn[sample] - lastDelayOutput[channel];
+                auto delayAmount = delayValue[channel];
+
+                linear.pushSample (int (channel), input);
+                linear.setDelay ((float) delayAmount);
+                samplesOut[sample] = linear.popSample ((int) channel);
+                            
+                lastDelayOutput[channel] = samplesOut[sample] * delayFeedbackVolume[channel].getNextValue();
+            }
+        }
+        
+        mixer.mixWetSamples (output);
+    */
 }
 
+/*
+void SynthesthesiaAudioProcessor::fillBuffer(juce::AudioBuffer<float>& buffer, int channel)
+{
+    auto bufferSize = buffer.getNumSamples();
+    auto delayBufferSize = delayBuffer.getNumSamples();
+    
+    auto* channelData = buffer.getWritePointer(channel);
+    
+    if (delayBufferSize > bufferSize + writePosition)
+    {
+        delayBuffer.copyFrom(channel, writePosition, buffer.getWritePointer(channel), bufferSize);
+    }
+    else
+    {
+        auto numSamplesToEnd = delayBufferSize - writePosition;
+        
+        delayBuffer.copyFrom(channel, writePosition, buffer.getWritePointer(channel), numSamplesToEnd);
+        
+        auto numSamplesAtStart = bufferSize - numSamplesToEnd;
+        
+        delayBuffer.copyFrom(channel, 0, buffer.getWritePointer(channel, numSamplesToEnd), numSamplesAtStart);
+    }
+}
+*/
+/*
+void SynthesthesiaAudioProcessor::readFromBuffer(juce::AudioBuffer<float>& buffer, juce::AudioBuffer<float>& delayBuffer, int channel)
+{
+    auto bufferSize = buffer.getNumSamples();
+    auto delayBufferSize = delayBuffer.getNumSamples();
+    
+    auto readPosition = writePosition - (getSampleRate() * 0.5f);
+    
+    if (readPosition < 0)
+    {
+        readPosition += delayBufferSize;
+    }
+
+    auto g = 0.7f;
+    
+    if (readPosition + bufferSize < delayBufferSize)
+    {
+        buffer.addFromWithRamp(channel, 0, delayBuffer.getReadPointer(channel, readPosition), bufferSize, g, g);
+    }
+    else
+    {
+        auto numSamplesToEnd = delayBufferSize - readPosition;
+        buffer.addFromWithRamp(channel, 0, delayBuffer.getReadPointer(channel, readPosition), numSamplesToEnd, g, g);
+        
+        auto numSamplesAtStart = bufferSize - numSamplesToEnd;
+        buffer.addFromWithRamp(channel, numSamplesToEnd, delayBuffer.getReadPointer(channel, 0), numSamplesAtStart, g, g);
+    }
+}
+*/
+/*
+void SynthesthesiaAudioProcessor::updateBufferPositions(juce::AudioBuffer<float>& buffer, juce::AudioBuffer<float>& delayBuffer)
+{
+    auto bufferSize = buffer.getNumSamples();
+    auto delayBufferSize = delayBuffer.getNumSamples();
+    
+    writePosition += bufferSize;
+    writePosition %= delayBufferSize;
+}
+*/
 //==============================================================================
 bool SynthesthesiaAudioProcessor::hasEditor() const
 {
@@ -220,7 +361,26 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SynthesthesiaAudioProcessor();
 }
-                                                    
+     
+/*
+void BasicDelayAudioProcessor::parameterChanged (const String& parameterID, float newValue)
+{
+    if (parameterID == "RATE")
+        std::fill (delayValue.begin(), delayValue.end(), newValue / 1000.0 * getSampleRate());
+    
+    if (parameterID == "MIX")
+        mixer.setWetMixProportion (newValue);
+    
+    if (parameterID == "FEEDBACK")
+    {
+        const auto feedbackGain = Decibels::decibelsToGain (newValue, -100.0f);
+        
+        for (auto& volume : delayFeedbackVolume)
+            volume.setTargetValue (feedbackGain);
+    }
+}
+*/
+
 juce::AudioProcessorValueTreeState::ParameterLayout SynthesthesiaAudioProcessor::createParams()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
@@ -248,6 +408,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout SynthesthesiaAudioProcessor:
     params.push_back (std::make_unique<juce::AudioParameterFloat>("MODDECAY", "Mod Decay", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.1f));
     params.push_back (std::make_unique<juce::AudioParameterFloat>("MODSUSTAIN", "Mod Sustain", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 1.0f));
     params.push_back (std::make_unique<juce::AudioParameterFloat>("MODRELEASE", "Mod Release", juce::NormalisableRange<float> { 0.0f, 3.0f, 0.1f }, 0.1f));
+    
+    //Delay
+    //params.push_back (std::make_unique<juce::AudioParameterFloat>("DELAY", "Delay", juce::NormalisableRange<float> { 0.0f, 3.0f, 0.1f }, 0.1f));
+   // using Range = NormalisableRange<float>;
+    //params.add (std::make_unique<AudioParameterFloat>   ("RATE", "Rate", 0.01f, 1000.0f, 0));
+    //params.add (std::make_unique<AudioParameterFloat> ("FEEDBACK", "Feedback", -100.0f, 0.0f, -100.0f));
+    //params.add (std::make_unique<AudioParameterFloat> ("MIX", "Mix", Range { 0.0f, 1.0f, 0.01f }, 0.0f));
+    
     
     return { params.begin(), params.end() };
 }
