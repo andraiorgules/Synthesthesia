@@ -42,9 +42,9 @@ void ADSRComponent::resized()
 {
     //Sets location of sliders in window
     const auto padding = 7;
-    const auto sliderWidth = 70;
-    const auto sliderHeight = 100;
-    const auto sliderStartX = 0;
+    const auto sliderWidth = 80;
+    const auto sliderHeight = 110;
+    const auto sliderStartX = 40;
     const auto sliderStartY = 40;
     
     attackSlider.setBounds(sliderStartX, sliderStartY, sliderWidth, sliderHeight);

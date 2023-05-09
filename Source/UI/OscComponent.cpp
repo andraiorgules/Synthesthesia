@@ -44,15 +44,15 @@ void OscComponent::paint (juce::Graphics& g)
 void OscComponent::resized()
 {
     const auto sliderWidth = 100;
-    const auto sliderHeight = 90;
+    const auto sliderHeight = 140;
     
     oscWaveSelector.setBounds(10, 30, 90, 20);
     waveSelectorLabel.setBounds(10, 5, 90, 20);
     
-    fmFreqSlider.setBounds(0, 80, sliderWidth, sliderHeight);
+    fmFreqSlider.setBounds(200, 30, sliderWidth, sliderHeight);
     fmFreqLabel.setBounds( fmFreqSlider.getX(), fmFreqSlider.getY() - 20, fmFreqSlider.getWidth(), 20 );
     
-    fmDepthSlider.setBounds(fmFreqSlider.getRight(), 80, sliderWidth, sliderHeight);
+    fmDepthSlider.setBounds(fmFreqSlider.getRight(), 30, sliderWidth, sliderHeight);
     fmDepthLabel.setBounds(fmDepthSlider.getX(), fmDepthSlider.getY() - 20, fmDepthSlider.getWidth(), 20);
 }
 

@@ -38,15 +38,15 @@ void FilterComponent::paint (juce::Graphics& g)
 void FilterComponent::resized()
 {
     const auto sliderWidth = 100;
-    const auto sliderHeight = 90;
+    const auto sliderHeight = 140;
     
     filterTypeSelect.setBounds(0, 0, 90, 20);
     filterTypeSelectLabel.setBounds(10, 35, filterTypeSelect.getWidth(), 20);
     
-    filterCutoffSlider.setBounds(filterTypeSelect.getRight(), 80, sliderWidth, sliderHeight);
+    filterCutoffSlider.setBounds(filterTypeSelect.getRight() + 20, 60, sliderWidth, sliderHeight);
     filterCutoffLabel.setBounds( filterCutoffSlider.getX(), filterCutoffSlider.getY() - 20, filterCutoffSlider.getWidth(), 20 );
     
-    filterResSLider.setBounds(filterCutoffSlider.getRight(), 80, sliderWidth, sliderHeight);
+    filterResSLider.setBounds(filterCutoffSlider.getRight(), 60, sliderWidth, sliderHeight);
     filterResLabel.setBounds(filterResSLider.getX(), filterResSLider.getY() - 20, filterResSLider.getWidth(), 20);
 }
 
