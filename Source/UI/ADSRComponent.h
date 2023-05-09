@@ -9,7 +9,6 @@
 */
 
 #pragma once
-
 #include <JuceHeader.h>
 
 //==============================================================================
@@ -18,16 +17,16 @@
 class ADSRComponent  : public juce::Component
 {
 public:
-    ADSRComponent(juce::AudioProcessorValueTreeState& apvts);
+    ADSRComponent(juce::String name, juce::AudioProcessorValueTreeState& apvts, juce::String attackId, juce::String decayId, juce::String sustainId, juce::String releaseId);
     ~ADSRComponent() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
+    using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     
-    void setSliderParams (juce::Slider& slider);
-    void setSliderLabel (juce::Label& label);
+    void setSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramId, std::unique_ptr<Attachment>& attachment);
     
     juce::Slider attackSlider;
     juce::Slider decaySlider;
@@ -45,6 +44,8 @@ private:
     juce::Label decayLabel {"Decay", "Decay"};
     juce::Label sustainLabel {"Sustain", "Sustain"};
     juce::Label releaseLabel {"Release", "Release"};
+    
+    juce::String componentName {""};
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ADSRComponent)
 };

@@ -12,26 +12,14 @@
 #include "ADSRComponent.h"
 
 //==============================================================================
-ADSRComponent::ADSRComponent(juce::AudioProcessorValueTreeState& apvts)
+ADSRComponent::ADSRComponent(juce::String name, juce::AudioProcessorValueTreeState& apvts, juce::String attackId, juce::String decayId, juce::String sustainId, juce::String releaseId)
 {
-    using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+    componentName = name;
     
-    attackAttachment = std::make_unique<SliderAttachment>(apvts, "ATTACK", attackSlider);
-    decayAttachment = std::make_unique<SliderAttachment>(apvts, "DECAY", decaySlider);
-    sustainAttachment = std::make_unique<SliderAttachment>(apvts, "SUSTAIN", sustainSlider);
-    releaseAttachment = std::make_unique<SliderAttachment>(apvts, "RELEASE", releaseSlider);
-    
-    //Create ADSR Sliders in UI
-    setSliderParams(attackSlider);
-    setSliderParams(decaySlider);
-    setSliderParams(sustainSlider);
-    setSliderParams(releaseSlider);
-    
-    //Add ADSR Labels
-    setSliderLabel(attackLabel);
-    setSliderLabel(decayLabel);
-    setSliderLabel(sustainLabel);
-    setSliderLabel(releaseLabel);
+    setSliderWithLabel(attackSlider, attackLabel, apvts, attackId, attackAttachment);
+    setSliderWithLabel(decaySlider, decayLabel, apvts, decayId, decayAttachment);
+    setSliderWithLabel(sustainSlider, sustainLabel, apvts, sustainId, sustainAttachment);
+    setSliderWithLabel(releaseSlider, releaseLabel, apvts, releaseId, releaseAttachment);
 }
 
 ADSRComponent::~ADSRComponent()
@@ -40,9 +28,12 @@ ADSRComponent::~ADSRComponent()
 
 void ADSRComponent::paint (juce::Graphics& g)
 {
-   
+    auto bounds = getLocalBounds().reduced (5);
+    auto labelSpace = bounds.removeFromTop (25.0f);
+    
     g.fillAll (juce::Colours::black);
     g.setColour(juce::Colours::pink);
+    g.drawText(componentName, labelSpace.withX(10), juce::Justification::left);
     g.drawRect (getLocalBounds());
 
 }
@@ -50,7 +41,6 @@ void ADSRComponent::paint (juce::Graphics& g)
 void ADSRComponent::resized()
 {
     //Sets location of sliders in window
-    //const auto bounds = getLocalBounds().reduced (10);
     const auto padding = 7;
     const auto sliderWidth = 70;
     const auto sliderHeight = 100;
@@ -68,17 +58,17 @@ void ADSRComponent::resized()
     releaseLabel.setBounds(releaseSlider.getX(), releaseSlider.getY() - 15, releaseSlider.getWidth(), 20 );
 }
 
-void ADSRComponent::setSliderParams (juce::Slider& slider)
-{
-    //Create ADSR sliders in UI
-    slider.setSliderStyle (juce::Slider::SliderStyle::RotaryVerticalDrag);
-    slider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 50, 25);
-    slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::pink);
-    addAndMakeVisible(slider);
-}
+using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
-void ADSRComponent::setSliderLabel (juce::Label& label)
+void ADSRComponent::setSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramId, std::unique_ptr<Attachment>& attachment)
 {
+    slider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 25);
+    slider.setColour(juce::Slider::ColourIds::thumbColourId, juce::Colours::pink);
+    addAndMakeVisible (slider);
+    
+    attachment = std::make_unique<Attachment>(apvts, paramId, slider);
+    
     label.setColour(juce::Label::ColourIds::textColourId, juce::Colours::pink);
     label.setFont(15.0f);
     label.setJustificationType(juce::Justification::centred);
