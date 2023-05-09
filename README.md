@@ -21,3 +21,5 @@
 ###### [14] [Youtube: "Creating a Circular Buffer" by TheAudioProgrammer ](https://www.youtube.com/watch?v=2oCb3SXBcTI)
 ###### [15] [Youtube: "Creating a Basic Delay Effect" by TheAudioProgrammer](https://www.youtube.com/watch?v=eA5Mhbric6Y)
 ###### [16] [Youtube: "Creating Delay Feedback" by TheAudioProgrammer](https://www.youtube.com/watch?v=eVg7EVmWBsE)
+###### [17] [Youtube: "Alert Windows & Callbakcs Full Stream!" by DrBruisin](https://www.youtube.com/watch?v=4QoXv66mXXI)
+###### [18] [Youtube: "Creating a TextButton (Quick Tip)" by TheAudioProgrammer](https://www.youtube.com/watch?v=fO__uveWulo)
