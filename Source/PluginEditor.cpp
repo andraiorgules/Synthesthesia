@@ -11,13 +11,16 @@
 
 //==============================================================================
 SynthesthesiaAudioProcessorEditor::SynthesthesiaAudioProcessorEditor (SynthesthesiaAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), osc(audioProcessor.apvts, "OSC1WAVETYPE", "OSC1FMFREQ", "OSC1FMDEPTH"), adsr("Amp Envelope", audioProcessor.apvts, "ATTACK", "DECAY", "SUSTAIN", "RELEASE"), filter(audioProcessor.apvts, "FILTERTYPE", "FILTERCUTOFF", "FILTERRES"), modAdsr("Mod Envelope", audioProcessor.apvts, "MODATTACK", "MODDECAY", "MODSUSTAIN", "MODRELEASE")
+: AudioProcessorEditor (&p), audioProcessor (p), osc(audioProcessor.apvts, "OSC1WAVETYPE", "OSC1FMFREQ", "OSC1FMDEPTH"), adsr("Amp Envelope", audioProcessor.apvts, "ATTACK", "DECAY", "SUSTAIN", "RELEASE"), filter(audioProcessor.apvts, "FILTERTYPE", "FILTERCUTOFF", "FILTERRES"), modAdsr("Mod Envelope", audioProcessor.apvts, "MODATTACK", "MODDECAY", "MODSUSTAIN", "MODRELEASE")
 {
     setSize (1300, 1000);
     addAndMakeVisible(osc);
     addAndMakeVisible(adsr);
     addAndMakeVisible(filter);
     addAndMakeVisible(modAdsr);
+    
+    addAndMakeVisible(audioProcessor.waveViewer);
+    audioProcessor.waveViewer.setColours(juce::Colours::black, juce::Colours::pink);
 }
 
 SynthesthesiaAudioProcessorEditor::~SynthesthesiaAudioProcessorEditor()
@@ -33,10 +36,12 @@ void SynthesthesiaAudioProcessorEditor::paint (juce::Graphics& g)
 
 void SynthesthesiaAudioProcessorEditor::resized()
 {
-    osc.setBounds(10, 400, getWidth() / 4, 200);
+    osc.setBounds(335, 600, getWidth() / 4, 200);
     adsr.setBounds(10, 600, getWidth() / 4, 175);
     filter.setBounds(10, 775, getWidth() / 4, 175);
-    modAdsr.setBounds(10, 225, getWidth() / 4, 175);
+    modAdsr.setBounds(335, 775, getWidth() / 4, 175);
+    
+    audioProcessor.waveViewer.setBounds(10, 100, getWidth(), 175);
 }
 
 

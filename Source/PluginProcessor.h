@@ -60,6 +60,8 @@ public:
     
     juce::AudioProcessorValueTreeState apvts;
 
+    juce::AudioVisualiserComponent waveViewer;
+    
 private:
     juce::Synthesiser synth;
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();

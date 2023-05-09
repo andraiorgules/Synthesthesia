@@ -28,8 +28,6 @@ public:
     void prepareToPlay (double sampleRate, int samplesPerBlock, int outputChannels);
     void renderNextBlock (juce::AudioBuffer< float > &outputBuffer, int startSample, int numSamples) override;
     
-    void reset();
-    
     void updateAdsr (const float attack, const float decay, const float sustain, const float release);
     void updateFilter (const int filterType, const float cutoff, const float resonance);
     void updateModAdsr (const float attack, const float decay, const float sustain, const float release);
@@ -46,7 +44,4 @@ private:
     juce::dsp::Gain<float> gain;
     
     bool isPrepared { false };
-    
- 
-    
 };
