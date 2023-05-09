@@ -10,6 +10,9 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "UI/ADSRComponent.h"
+#include "UI/OscComponent.h"
+#include "UI/FilterComponent.h"
 
 //==============================================================================
 /**
@@ -25,25 +28,10 @@ public:
     void resized() override;
 
 private:
-    void setSliderParams (juce::Slider& slider);
-    
-    juce::Slider attackSlider;
-    juce::Slider decaySlider;
-    juce::Slider sustainSlider;
-    juce::Slider releaseSlider;
-    juce::ComboBox oscSelector;
-    
-    using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
-    //ADSR Sliders
-    std::unique_ptr<SliderAttachment> attackAttachment;
-    std::unique_ptr<SliderAttachment> decayAttachment;
-    std::unique_ptr<SliderAttachment> sustainAttachment;
-    std::unique_ptr<SliderAttachment> releaseAttachment;
-    
-    //OSC Selection Box
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> oscSelAttachment;
-    
     SynthesthesiaAudioProcessor& audioProcessor;
+    OscComponent osc;
+    ADSRComponent adsr;
+    FilterComponent filter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesthesiaAudioProcessorEditor)
 };

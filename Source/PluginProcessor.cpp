@@ -23,7 +23,11 @@ SynthesthesiaAudioProcessor::SynthesthesiaAudioProcessor()
 #endif
 {
     synth.addSound ( new SynthSound() );
-    synth.addVoice ( new SynthVoice() );
+    //synth.addVoice ( new SynthVoice() );
+    for (int i = 0; i < 5; i++)
+      {
+          synth.addVoice (new SynthVoice());
+      }
 }
 
 SynthesthesiaAudioProcessor::~SynthesthesiaAudioProcessor()
@@ -71,8 +75,8 @@ double SynthesthesiaAudioProcessor::getTailLengthSeconds() const
 
 int SynthesthesiaAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;   
+                
 }
 
 int SynthesthesiaAudioProcessor::getCurrentProgram()
@@ -96,21 +100,20 @@ void SynthesthesiaAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void SynthesthesiaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
+    synth.setCurrentPlaybackSampleRate (sampleRate);
     
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
         if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+            voice->prepareToPlay (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
         }
     }
 }
 
 void SynthesthesiaAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -120,15 +123,11 @@ bool SynthesthesiaAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
+
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
    #if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
@@ -152,35 +151,45 @@ void SynthesthesiaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     {
         if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
-            //osc controls
-            //adsr
-            //lfo
-            //can add more voices here
+            //Amplitude ADSR for Osc
+            auto& attack = *apvts.getRawParameterValue ("ATTACK");
+            auto& decay = *apvts.getRawParameterValue ("DECAY");
+            auto& sustain = *apvts.getRawParameterValue ("SUSTAIN");
+            auto& release = *apvts.getRawParameterValue ("RELEASE");
             
-            auto& attack = *apvts.getRawParameterValue("ATTACK");
-            auto& decay = *apvts.getRawParameterValue("DECAY");
-            auto& sustain = *apvts.getRawParameterValue("SUSTAIN");
-            auto& release = *apvts.getRawParameterValue("RELEASE");
+            //Oscillator 1
+            auto& oscWaveChoice = *apvts.getRawParameterValue("OSC1WAVETYPE");
+            auto& fmDepth = *apvts.getRawParameterValue("OSC1FMDEPTH");
+            auto& fmFreq = *apvts.getRawParameterValue("OSC1FMFREQ");
             
-            voice->updateADSR(attack.load(), decay.load(), sustain.load(), release.load());
+            //Filter Code
+            auto& filterType = *apvts.getRawParameterValue("FILTERTYPE");
+            auto& cutoff = *apvts.getRawParameterValue("FILTERCUTOFF");
+            auto& resonance = *apvts.getRawParameterValue("FILTERRES");
+            
+            //Modulator ADSR
+            auto& modAttack = *apvts.getRawParameterValue ("MODATTACK");
+            auto& modDecay = *apvts.getRawParameterValue ("MODDECAY");
+            auto& modSustain = *apvts.getRawParameterValue ("MODSUSTAIN");
+            auto& modRelease = *apvts.getRawParameterValue ("MODRELEASE");
+            
+            //Update Parameters
+            voice->getOscillator().setWaveType (oscWaveChoice);
+            voice->getOscillator().setFmParams(fmDepth, fmFreq);
+            voice->updateAdsr(attack.load(), decay.load(), sustain.load(), release.load());
+            voice->updateFilter(filterType.load(), cutoff.load(), resonance.load());
+            voice->updateModAdsr(modAttack, modDecay, modSustain, modRelease);
         }
     }
     
-//    for (const juce::MidiMessageMetadata metadata : midiMessages)
-//    {
-//        if (metadata.numBytes == 3)
-//        {
-//            juce::Logger::writeToLog("Timestamp: " + juce::String (metadata.getMessage().getTimeStamp()));
-//       }
-//    }
-    
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    //juce::dsp::AudioBlock<float> block { buffer };
 }
 
 //==============================================================================
 bool SynthesthesiaAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* SynthesthesiaAudioProcessor::createEditor()
@@ -191,15 +200,12 @@ juce::AudioProcessorEditor* SynthesthesiaAudioProcessor::createEditor()
 //==============================================================================
 void SynthesthesiaAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+
 }
 
 void SynthesthesiaAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+
 }
 
 //==============================================================================
@@ -208,23 +214,34 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SynthesthesiaAudioProcessor();
 }
-
+                                                    
 juce::AudioProcessorValueTreeState::ParameterLayout SynthesthesiaAudioProcessor::createParams()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
-    //OSC Selection
-    params.push_back (std::make_unique<juce::AudioParameterChoice> ("OSC", "Oscillator", juce::StringArray { "Sine", "Sawtooth", "Square", "Triangle" }, 0));
-    
+    //Frequency Modulation
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("OSC1FMFREQ", "Osc 1 FM Frequency", juce::NormalisableRange<float> { 0.0f, 1000.0f, 0.01f, 0.3f  }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("OSC1FMDEPTH", "Osc 1 FM Depth", juce::NormalisableRange<float> { 0.0f, 1000.0f, 0.01f, 0.3f }, 0.0f));
+
     //ADSR
-    //Attack
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.1f));
-    //Decay
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 0.1f));
-    //Sustain
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float> { 0.1f, 1.0f, }, 1.0f));
-    //Release
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float> { 0.1f, 3.0f, }, 0.4f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float> { 0.0f, 3.0f, 0.1f }, 0.0f));
                      
+    //Oscillator 1 Selection
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("OSC1WAVETYPE", "Osc 1 Wave Type", juce::StringArray { "Sine", "Sawtooth", "Square" }, 0));
+    
+    //Filter
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FILTERTYPE", "Filter Type", juce::StringArray { "Low-Pass", "Band-Pass", "High-Pass" }, 0));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("FILTERCUTOFF", "Filter Cutoff", juce::NormalisableRange<float> { 0.0f, 20000.0f, 0.1f, 0.6f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("FILTERRES", "Filter Resonance", juce::NormalisableRange<float> { 0.0f, 10.0f, 0.1f }, 0.0f));
+    
+    //Modulator ADSR
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("MODATTACK", "Mod Attack", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("MODDECAY", "Mod Decay", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("MODSUSTAIN", "Mod Sustain", juce::NormalisableRange<float> { 0.0f, 1.0f, 0.1f }, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("MODRELEASE", "Mod Release", juce::NormalisableRange<float> { 0.0f, 3.0f, 0.1f }, 0.0f));
+    
     return { params.begin(), params.end() };
 }

@@ -11,32 +11,12 @@
 
 //==============================================================================
 SynthesthesiaAudioProcessorEditor::SynthesthesiaAudioProcessorEditor (SynthesthesiaAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p), osc(audioProcessor.apvts, "OSC1WAVETYPE", "OSC1FMFREQ", "OSC1FMDEPTH"), adsr(audioProcessor.apvts), filter(audioProcessor.apvts, "FILTERTYPE", "FILTERCUTOFF", "FILTERRES")
 {
-    setSize (400, 300);
-    
-    using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
-    //Attack Slider
-    attackAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "ATTACK", attackSlider);
-    //Decay Slider
-    decayAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "DECAY", decaySlider);
-    //Sustain Slider
-    sustainAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "SUSTAIN", sustainSlider);
-    //Release Slider
-    releaseAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "RELEASE", releaseSlider);
-    
-    //OSC Selection Box
-    oscSelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "OSC", oscSelector);
-    
-    //Create Attack Slider in UI
-    setSliderParams(attackSlider);
-    //Create Decay Slider in UI
-    setSliderParams(decaySlider);
-    //Create Sustain Slider in UI
-    setSliderParams(sustainSlider);
-    //Create Release Slider in UI
-    setSliderParams(releaseSlider);
-    
+    setSize (1300, 1000);
+    addAndMakeVisible(osc);
+    addAndMakeVisible(adsr);
+    addAndMakeVisible(filter);
 }
 
 SynthesthesiaAudioProcessorEditor::~SynthesthesiaAudioProcessorEditor()
@@ -46,38 +26,15 @@ SynthesthesiaAudioProcessorEditor::~SynthesthesiaAudioProcessorEditor()
 //==============================================================================
 void SynthesthesiaAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    //g.setColour (juce::Colours::white);
-    //g.setFont (15.0f);
-    //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
-    
+    //Sets background to black
     g.fillAll(juce::Colours::black);
 }
 
 void SynthesthesiaAudioProcessorEditor::resized()
 {
-    //Sets location of sliders in window
-    const auto bounds = getLocalBounds().reduced (10);
-    const auto padding = 10;
-    const auto sliderWidth = bounds.getWidth() / 4 - padding;
-    const auto sliderHeight = bounds.getWidth() / 4 - padding;
-    const auto sliderStartX = 0;
-    const auto sliderStartY = bounds.getHeight() / 2 - (sliderHeight / 2);
-    
-    attackSlider.setBounds(sliderStartX, sliderStartY, sliderWidth, sliderHeight);
-    decaySlider.setBounds(attackSlider.getRight() + padding, sliderStartY, sliderWidth, sliderHeight);
-    sustainSlider.setBounds(decaySlider.getRight() + padding, sliderStartY, sliderWidth, sliderHeight);
-    releaseSlider.setBounds(sustainSlider.getRight() + padding, sliderStartY, sliderWidth, sliderHeight);
-    
+    osc.setBounds(10, 400, getWidth() / 4, 200);
+    adsr.setBounds(10, 600, getWidth() / 4, 175);
+    filter.setBounds(10, 775, getWidth() / 4, 175);
 }
 
-void SynthesthesiaAudioProcessorEditor::setSliderParams (juce::Slider& slider)
-{
-    //create ADSR sliders in UI
-    //Change LinearVertical to RotaryVerticalDrag
-    slider.setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    slider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 50, 25);
-    addAndMakeVisible(slider);
-}
+
